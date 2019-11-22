@@ -17,14 +17,6 @@ def translate_name(original_name):
             else:
                 print(f'ERROR: {original_name} not found.')
 
-        elif isinstance(original_name, list):
-            new_list = []
-            for pokemon in data:
-                if pokemon['fr'] in original_name:
-                    return pokemon['en']
-                if original_name == pokemon['en']:
-                    return pokemon['fr']
-
 #TODO: scrap the data once for all and keep it in a file
 def main(args):
     base_url = 'https://pokemondb.net/'
@@ -57,14 +49,48 @@ def main(args):
             print(f'Evolution line for {pokename_original}:')
 
             for i in range(len(next_evo)):
-                print(f"{all_evo[i].find('a', class_='ent-name').text}", end=' --')
+                name = all_evo[i].find('a', class_='ent-name').text
+                if args.nospoil:
+                    if name != pokename_en:
+                        name = '???'
+                elif args.lang == 'fr':
+                    name = translate_name(name)
+
+                if name == pokename_original or name == pokename_en:
+                    name = '[' + name + ']'
+
+                print(f"{name}", end=' --')
                 print(f"{next_evo[i].find('small').text}", end='--> ')
-            print(f"{all_evo[-1].find('a', class_='ent-name').text}")
+
+
+            if not args.nospoil:
+                name = all_evo[-1].find('a', class_='ent-name').text
+
+                if args.lang == 'fr':
+                    name = translate_name(name)
+
+                if name == pokename_original or name == pokename_en:
+                    name = '[' + name + ']'
+
+            else:
+                name = all_evo[-1].find('a', class_='ent-name').text
+
+                if args.lang == 'fr':
+                    name = translate_name(name)
+
+                if name == pokename_original or name == pokename_en:
+                    name = '[' + name + ']'
+
+                if args.nospoil:
+                    name = '???'
+
+
+            print(f"{name}")
 
             break
 
     else:
-        print(f'ERROR: {pokename} not found in the database (are you sure you used english names?)')
+        print(f'ERROR: {pokename_original} not found in the database (are you sure you used english names?)')
         return
 
 
@@ -88,7 +114,8 @@ def scrap_names():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", type=str)
-    parser.add_argument("-l", "--lang", default="fr", type=str)
+    parser.add_argument("-l", "--lang", default="en", type=str)
+    parser.add_argument("-ns", "--nospoil", action='store_true')
     args = parser.parse_args()
     main(args)
 
