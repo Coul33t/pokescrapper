@@ -1,7 +1,7 @@
-from bs4 import BeautifulSoup as BS
-import requests
 import argparse
 import json
+import requests
+from bs4 import BeautifulSoup as BS
 
 def translate_name(original_name):
     with open('names.json', 'r') as json_file:
@@ -14,13 +14,12 @@ def translate_name(original_name):
                 if original_name == pokemon['en']:
                     return pokemon['fr']
 
-            else:
-                print(f'ERROR: {original_name} not found.')
+            print(f'ERROR: {original_name} not found.')
+            return
 
-#TODO: scrap the data once for all and keep it in a file
+# TODO: scrap the data once for all and keep it in a file
 def main(args):
     base_url = 'https://pokemondb.net/'
-    pokelist = []
 
     response = requests.get(base_url + 'pokedex/game/sword-shield')
     soup = BS(response.content, 'html.parser')
@@ -55,7 +54,7 @@ def main(args):
 
             print(f'Evolution line for {pokename_original}:')
 
-            for i in range(len(next_evo)):
+            for i, _ in enumerate(next_evo):
                 name = all_evo[i].find('a', class_='ent-name').text
                 if args.nospoil:
                     if name != pokename_en:
@@ -126,4 +125,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
 
-    #scrap_names()
+    # scrap_names()
