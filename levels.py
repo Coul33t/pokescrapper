@@ -43,6 +43,13 @@ def main(args):
             soup = BS(response.content, 'html.parser')
 
             evo_line = soup.find('div', class_='infocard-list-evo')
+
+            if not evo_line:
+                if args.lang == 'fr':
+                    name = translate_name(name)
+                print(f'[{name}]')
+                return
+
             all_evo = evo_line.find_all('div', class_='infocard')
             next_evo = evo_line.find_all('span', class_='infocard infocard-arrow')
 
