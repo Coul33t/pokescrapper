@@ -21,7 +21,7 @@ def translate_name(original_name):
 def main(args):
     base_url = 'https://pokemondb.net/'
 
-    response = requests.get(base_url + 'pokedex/game/sword-shield')
+    response = requests.get(base_url + 'pokedex/game/scarlet-violet')
     soup = BS(response.content, 'html.parser')
 
     pokecards = soup.find_all('div', class_='infocard')
@@ -109,8 +109,12 @@ def scrap_names():
 
     for table in soup.find_all('table', class_='roundy'):
         for row in table.find_all('tr', attrs={'style': 'background:#FFF'}):
-            row_data = row.text.replace('\n', '').split(' ')
-            name_list.append({'en': row_data[3], 'fr': row_data[4]})
+            
+            row_data = list(filter(None,row.text.replace('\n', ' ').split(' ')))
+            try:
+                name_list.append({'en': row_data[1], 'fr': row_data[2]})
+            except IndexError:
+                name_list.append({'en': row_data[0], 'fr': row_data[1]})
 
 
     with open('names.json', 'w') as json_output:
@@ -123,6 +127,7 @@ if __name__ == '__main__':
     parser.add_argument("-l", "--lang", default="en", type=str)
     parser.add_argument("-ns", "--nospoil", action='store_true')
     args = parser.parse_args()
+    #scrap_names()
     main(args)
 
     # scrap_names()
